@@ -6,8 +6,6 @@ import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import roc_auc_score, classification_report
-
-from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 
 from data_preprocessing import load_data, clean_data, make_features_and_target, build_preprocessor
@@ -28,14 +26,15 @@ def train():
         X, y, test_size=0.2, random_state=42, stratify=y
     )
 
-    # Choose model (RF tends to work well for tabular data)
+    # Random Forest with imbalance handling
     model = RandomForestClassifier(
-        n_estimators=200,
+        n_estimators=300,
         max_depth=12,
         min_samples_split=10,
         min_samples_leaf=5,
         random_state=42,
         n_jobs=-1,
+        class_weight="balanced_subsample",
     )
 
     clf = Pipeline(
@@ -47,13 +46,16 @@ def train():
 
     clf.fit(X_train, y_train)
 
-    # Evaluate
+    # Evaluate using probabilities + threshold (better for churn)
     y_proba = clf.predict_proba(X_test)[:, 1]
-    y_pred = clf.predict(X_test)
+
+    threshold = 0.35
+    y_pred = (y_proba >= threshold).astype(int)
 
     roc_auc = roc_auc_score(y_test, y_proba)
     print("ROC-AUC:", round(roc_auc, 4))
-    print("\nClassification Report:\n", classification_report(y_test, y_pred))
+    print(f"\nClassification Report (threshold={threshold}):\n",
+          classification_report(y_test, y_pred, zero_division=0))
 
     # Save model
     os.makedirs("models", exist_ok=True)
