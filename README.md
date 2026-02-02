@@ -73,6 +73,7 @@ These insights can directly support targeted retention strategies.
 - Tools: Git, VS Code, Jupyter Notebook
 
 📁 Repository Structure
+```
     customer-churn-ml-pipeline/
     │── data/
     │   ├── raw/
@@ -89,6 +90,7 @@ These insights can directly support targeted retention strategies.
     │   └── app.py
     │── requirements.txt
     │── README.md
+```
 
 ▶️ How to Run
 # Create virtual environment
