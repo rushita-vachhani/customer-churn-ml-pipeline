@@ -36,5 +36,6 @@ if st.button("Predict"):
     }
     X = pd.DataFrame([row])
     proba = float(model.predict_proba(X)[:, 1][0])
+    threshold = 0.35
     st.metric("Churn Probability", f"{proba:.2%}")
-    st.write("Prediction:", "✅ Churn" if proba >= 0.5 else "🟦 No Churn")
+    st.write("Prediction:", "Churn" if proba >= threshold else "No Churn")
