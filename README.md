@@ -1,112 +1,269 @@
 # customer-churn-ml-pipeline
-End-to-End Customer Churn Prediction (ML Product)
+Customer Churn Prediction – End-to-End Machine Learning Pipeline
 
-📌 Customer Churn Prediction – End-to-End ML Pipeline
-🔍 Problem Statement
+Project Overview
 
-Customer churn is a critical challenge for subscription-based businesses. Identifying customers at risk of churn enables companies to take proactive retention actions and reduce revenue loss.
+Customer churn is a major challenge for subscription-based businesses. Identifying customers who are likely to leave helps companies take proactive retention actions.
 
-This project builds an end-to-end machine learning pipeline to predict customer churn and identify key drivers influencing churn behavior.
+This project builds an end-to-end machine learning pipeline that predicts whether a telecom customer will churn using behavioral and billing data.
 
-📊 Dataset
-- Source: Telco Customer Churn dataset
-- Size: 7,043 customers, 33 features
-- Target Variable:
-    - Churn (1 = churned, 0 = retained)
+The system includes:
+	•	Exploratory Data Analysis (EDA)
+	•	Data preprocessing pipeline
+	•	Machine learning model training
+	•	REST API for predictions
+	•	Interactive dashboard for analysis
 
-Key Feature Categories
-- Customer demographics
-- Service subscriptions
-- Contract type
-- Billing and payment information
+The goal is to demonstrate production-style ML system design, combining data science, backend APIs, and analytics dashboards.
 
-⚙️ Project Workflow
-1. Data Cleaning & EDA
-    - Handled missing and inconsistent values
-    - Identified key churn drivers (contract type, tenure, monthly charges)
+⸻
 
-2. Feature Engineering
-    - Removed data leakage features (e.g., churn reason, churn score)
-    - Encoded categorical variables using One-Hot Encoding
+Dataset
 
-3. Modeling
-    - Logistic Regression (baseline)
-    - Random Forest (non-linear model)
+The dataset used in this project is the Telco Customer Churn dataset.
 
-4. Evaluation
-    - ROC-AUC
-    - Precision / Recall
-    - Confusion Matrix
+Features include:
+	•	Customer demographics
+	•	Subscription services
+	•	Contract information
+	•	Billing details
+	•	Payment methods
 
-5. Interpretability
-    - Feature importance analysis to explain churn drivers
+Target variable:
 
-🤖 Models & Performance
-Model	                ROC-AUC	    Key Notes
-Logistic Regression	    ~0.85	    Strong baseline, interpretable
-Random Forest	        ~0.83	    Captures non-linear relationships
-> Evaluation focused on ROC-AUC and churn recall due to class imbalance.
+Churn
+	•	Yes → customer left the service
+	•	No → customer retained
 
-🔑 Key Insights
--> Month-to-month contracts have significantly higher churn
--> Short tenure customers are at highest churn risk
--> Higher monthly charges correlate with increased churn
--> Model insights align strongly with exploratory data analysis
+Dataset size: ~7,000 customer records
 
-📈 Feature Importance (Random Forest)
+⸻
 
-Top predictors of churn include:
-    - Contract type
-    - Tenure months
-    - Monthly charges
-    - Internet service features
-These insights can directly support targeted retention strategies.
+Project Architecture
 
-🧰 Tech Stack
-- Language: Python
-- Libraries: pandas, numpy, scikit-learn, matplotlib, seaborn
-- ML Techniques:
-    - One-Hot Encoding
-    - Logistic Regression
-    - Random Forest
-    - ROC-AUC evaluation
-- Tools: Git, VS Code, Jupyter Notebook
+customer-churn-ml-pipeline
+│
+├── api/                # FastAPI service for predictions
+│   └── main.py
+│
+├── dashboard/          # Streamlit dashboard
+│   └── app.py
+│
+├── data/
+│   ├── raw/            # original dataset
+│   └── processed/      # cleaned dataset
+│
+├── models/             # trained ML models
+│   └── churn_model.joblib
+│
+├── notebooks/
+│   ├── 01_eda.ipynb
+│   └── 02_modeling.ipynb
+│
+├── src/
+│   ├── data_preprocessing.py
+│   └── train_model.py
+│
+├── README.md
+└── requirements.txt
 
-📁 Repository Structure
+⸻
+
+Exploratory Data Analysis
+
+EDA was performed to understand patterns related to churn.
+
+Key insights discovered:
+	•	Customers with month-to-month contracts churn more frequently
+	•	Higher monthly charges correlate with churn
+	•	Customers using electronic check payments show higher churn probability
+	•	Longer tenure significantly reduces churn likelihood
+
+Visualizations include:
+	•	churn distribution
+	•	tenure vs churn
+	•	monthly charges analysis
+	•	correlation heatmap
+
+EDA notebook:
+
+notebooks/01_eda.ipynb
+
+⸻
+
+Machine Learning Pipeline
+
+The modeling pipeline includes:
+
+Data Preprocessing
+	•	missing value handling
+	•	categorical encoding
+	•	feature scaling
+	•	feature selection
+
+Model Training
+
+Multiple models were evaluated:
+	•	Logistic Regression
+	•	Random Forest
+	•	Gradient Boosting
+
+Model Evaluation
+
+Metrics used:
+	•	Accuracy
+	•	Precision
+	•	Recall
+	•	ROC-AUC
+
+Best performing model:
+
+Random Forest Classifier
+
+Model saved as:
 ```
-    customer-churn-ml-pipeline/
-    │── data/
-    │   ├── raw/
-    │   └── processed/
-    │── notebooks/
-    │   ├── 01_eda.ipynb
-    │   └── 02_modeling.ipynb
-    │── src/
-    │   ├── data_preprocessing.py
-    │   └── train_model.py
-    │── api/
-    │   └── main.py
-    │── dashboard/
-    │   └── app.py
-    │── requirements.txt
-    │── README.md
+models/churn_model.joblib
+```
+Model training notebook:
+
+notebooks/02_modeling.ipynb
+
+⸻
+
+Model Performance
+
+Metric	                Score
+Score           	    ~0.80
+Precision       	    ~0.78
+Recall          	    ~0.73
+ROC-AUC         	    ~0.84
+
+The model demonstrates strong ability to identify high-risk churn customers.
+
+⸻
+
+API Service
+
+A FastAPI service exposes the trained model for real-time predictions.
+
+Start API:
+```
+uvicorn api.main:app --reload
 ```
 
-▶️ How to Run
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
+API Endpoint
+```
+POST /predict
+```
 
-# Install dependencies
+Example Request
+```
+{
+  "tenure": 12,
+  "monthly_charges": 70.0,
+  "contract": "Month-to-month",
+  "payment_method": "Electronic check"
+}
+```
+
+Example Response
+```
+{
+  "churn_probability": 0.78,
+  "prediction": "Churn"
+}
+```
+
+⸻
+
+Interactive Dashboard
+
+A Streamlit dashboard allows users to explore churn predictions interactively.
+
+Run dashboard:
+```
+streamlit run dashboard/app.py
+```
+Dashboard features:
+	•	customer churn probability prediction
+	•	feature input simulation
+	•	visualization of churn patterns
+	•	model output interpretation
+
+⸻
+
+Business Impact
+
+This system helps organizations:
+	•	identify high-risk churn customers early
+	•	prioritize customer retention campaigns
+	•	reduce revenue loss from subscription cancellations
+	•	translate ML predictions into actionable business insights
+
+⸻
+
+Technologies Used
+
+Languages
+	•	Python
+
+Machine Learning
+	•	Scikit-learn
+	•	Pandas
+	•	NumPy
+
+Visualization
+	•	Matplotlib
+	•	Seaborn
+
+Backend
+	•	FastAPI
+
+Dashboard
+	•	Streamlit
+
+Model Serialization
+	•	Joblib
+
+⸻
+
+How to Run the Project
+
+Clone repository
+```
+git clone <repo-url>
+cd customer-churn-ml-pipeline
+```
+
+Install dependencies
+```
 pip install -r requirements.txt
+```
 
-# Run notebooks
-jupyter notebook
+Run API
+```
+uvicorn api.main:app --reload
+```
 
-🚀 Future Improvements
--> Threshold tuning to optimize churn recall
--> Cross-validation and hyperparameter tuning
--> Model deployment using FastAPI / Streamlit
+Run dashboard
+```
+streamlit run dashboard/app.py
+```
+⸻
 
-👤 Author
-~ Rushitaben Vachhani
+Future Improvements
+
+Potential enhancements include:
+	•	automated retraining pipeline
+	•	feature store integration
+	•	real-time data ingestion
+	•	model monitoring and drift detection
+	•	deployment using Docker and cloud infrastructure
+
+⸻
+
+Author
+
+Rushitaben Vachhani
+MS Software Engineering – Northeastern University
+Gold Medalist | Data Science & AI Enthusiast
