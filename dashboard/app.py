@@ -4,8 +4,11 @@ from __future__ import annotations
 import joblib
 import pandas as pd
 import streamlit as st
+from pathlib import Path
 
-MODEL_PATH = "models/churn_model.joblib"
+BASE_DIR = Path(__file__).resolve().parent.parent
+MODEL_PATH = BASE_DIR / "models" / "churn_model.joblib"
+DATA_PATH = BASE_DIR / "data" / "processed" / "churn_clean.csv"
 
 st.set_page_config(page_title="Churn Predictor", layout="centered")
 
@@ -35,6 +38,17 @@ if st.button("Predict"):
         "Payment Method": payment,
     }
     X = pd.DataFrame([row])
+
+    expected_features = list(model.feature_names_in_)
+    df_template = pd.read_csv(DATA_PATH)
+    for col in expected_features:
+        if col not in X.columns:
+            if pd.api.types.is_numeric_dtype(df_template[col]):
+                X[col] = 0
+            else:
+                X[col] = "Unknown"
+    X = X[expected_features]
+
     proba = float(model.predict_proba(X)[:, 1][0])
     threshold = 0.35
     st.metric("Churn Probability", f"{proba:.2%}")
